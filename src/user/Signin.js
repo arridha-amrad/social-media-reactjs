@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {Redirect} from 'react-router-dom';
+import { signin, authenticate } from '../auth/index';
 
 class Signin extends Component {
   constructor() {
@@ -20,29 +21,6 @@ class Signin extends Component {
     this.setState({ [whateverType]: e.target.value });
   }
 
-  signin = user => {
-    return fetch("http://localhost:5000/signin", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(user)
-    })
-    .then(response => {
-      return response.json();
-    })
-    .catch(err => console.log(err));
-  }
-
-  authenticate (jwt, next) {
-    if(typeof window !== "undefined") {
-      // save token into localstorage
-      localStorage.setItem("jwt", JSON.stringify(jwt));
-      next();
-    }
-  }
-
   clickSubmit = e => {
     e.preventDefault();
     this.setState({ loading: true })
@@ -52,13 +30,13 @@ class Signin extends Component {
       password,
     }
     // console.log(user);
-    this.signin(user)
+    signin(user)
     .then(data => {
       if(data.error) {this.setState({error : data.error, loading:false})
       }
       else {
         // authenticate
-        this.authenticate(data, () => {
+        authenticate(data, () => {
           this.setState({redirectToReferer: true })
         })
     }
@@ -66,7 +44,7 @@ class Signin extends Component {
   };
 
   render() {
-  const {email, password, error, message, redirectToReferer, loading} = this.state;
+  const {email, password, error, redirectToReferer, loading} = this.state;
   if(redirectToReferer) return <Redirect to="/" />
   return (
     <div className="row mt-5">
@@ -81,9 +59,6 @@ class Signin extends Component {
 
           {error && (<div className="alert alert-warning text-center">
             <strong>Failed! </strong> {error}
-          </div>)}
-          {message && (<div className="alert alert-success text-center">
-            <strong>Congratulation! </strong> {message}
           </div>)}
 
           <form>

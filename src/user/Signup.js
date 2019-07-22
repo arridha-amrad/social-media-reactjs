@@ -1,4 +1,6 @@
-import React, {Component} from 'react'
+import React, {Component} from 'react';
+import { signup } from '../auth/index';
+
 
 class Signup extends Component {
   constructor() {
@@ -18,21 +20,6 @@ class Signup extends Component {
     this.setState({ [whateverType]: e.target.value });
   }
 
-  signup = user => {
-    return fetch("http://localhost:5000/signup", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(user)
-    })
-    .then(response => {
-      return response.json();
-    })
-    .catch(err => console.log(err));
-  }
-
   clickSubmit = e => {
     e.preventDefault();
     const {name, email, password} = this.state;
@@ -42,7 +29,7 @@ class Signup extends Component {
       password,
     }
     // console.log(user);
-    this.signup(user)
+    signup(user)
     .then(data => {
       if(data.error) this.setState({error : data.error})
       else 
@@ -83,7 +70,11 @@ class Signup extends Component {
               <input onChange={this.handleChange("password")} type="password" className="form-control" value={password} />
             </div>
             <button onClick={this.clickSubmit} className="btn btn-raised btn-primary">Submit</button>
+            {message ? (
+            <small className="text-lead float-right mt-2"><a href="/signin" className="float-right">login</a></small>
+            ) : (
             <small className="text-lead float-right mt-2">Already have account?&nbsp;<a href="/signin" className="float-right">login</a></small>
+            )}
           </form>
         </div>
       </div>
