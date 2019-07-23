@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { list } from './apiUser';
-import defaultProfile from '../image/avatar.png';
+import DefaultProfile from '../image/avatar.png';
 import {Link} from 'react-router-dom';
 
 class Users extends Component {
@@ -19,13 +19,20 @@ class Users extends Component {
       }
     })
   }
-
   renderUsers = (users) => (
     <div className="row">
       {users.map((user, i) => (
       <div className="col-md-4 mt-4" key={i}>
       <div className="card text-center" style={{ width: "18rem" }}>
-        <img className="card-img-top" src={defaultProfile} alt={user.name} />
+      <img style={{
+              height: "240px",
+              width: "auto"
+            }}
+              className="card-img-top img-thumbnail"
+              src={`${process.env.REACT_APP_API_URL}/user/photo/${user._id}?${new Date().getTime()}`} 
+              alt={user.name} 
+              onError = {i => (i.target.src = `${DefaultProfile}`)}
+            />
         <div className="card-body">
           <h5 className="card-title">{user.name}</h5>
           <p className="card-text">{user.email}</p>

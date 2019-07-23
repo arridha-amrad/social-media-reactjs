@@ -2,16 +2,41 @@ import React, { Component } from 'react';
 import { isAuthenticated } from '../auth/index';
 import { Redirect, Link } from 'react-router-dom';
 import { read } from './apiUser';
-import defaultProfile from '../image/avatar.png';
+import DefaultProfile from '../image/avatar.png';
 import DeleteUser from './deleteUser';
+import FollowProfileButton from './FollowProfileButton';
 
 class Profile extends Component {
   constructor() {
     super()
     this.state = {
-      user: "",
-      redirectToSignin: false
+      user: {following: [], followers: [] },
+      redirectToSignin: false,
+      following: false
     }
+  };
+
+  // check follow
+  checkFollow = user => {
+    const jwt = isAuthenticated();
+    const match = user.followers.find(follower => {
+      return follower._id === jwt.user._id
+    })
+    return match
+  }
+
+  // when follow button click
+  clickFollowButton = callApi => {
+    const userId = isAuthenticated().user._id;
+    const token = isAuthenticated().token;
+    callApi(userId, token, this.state.user._id)
+    .then(data => {
+      if (data.error) {
+        this.setState({ error: data.error })
+      } else {
+        this.setState({ user: data, following: !this.state.following })
+      }
+    })
   }
 
   init = userId => {
@@ -20,7 +45,8 @@ class Profile extends Component {
       if (data.error) {
         this.setState({ redirectToSignin: true })
       } else {
-        this.setState({ user: data })
+        let following = this.checkFollow(data)
+        this.setState({ user: data, following })
       }
     })
   }
@@ -38,18 +64,26 @@ class Profile extends Component {
   render() {
     const { redirectToSignin, user } = this.state;
     if (redirectToSignin) return <Redirect to="/signin" />
+    const photoUrl = user._id ? `${process.env.REACT_APP_API_URL}/user/photo/${user._id}?${new Date().getTime()}` : DefaultProfile ;
+
     return (
       <div className="container mt-5">
         <h2 className="mb-4 text-center">Profile
-        <hr style={{width: "50%", height:"10px"}}></hr>
+        <hr style={{ width: "50%", height: "10px" }}></hr>
         </h2>
         <div className="row">
-          <div className="col-md-4 offset-md-2">
-            <img className="card-img-top rounded-circle"
-              src={defaultProfile}
-              alt={user.name}
-              style={{ height: "240px", width: "240px" }}
+          <div className="col-md-4 offset-md-2 text-center">
+            <img style={{
+              height: "240px",
+              width: "auto",
+              margin: "auto"
+            }}
+              className="card-img-top img-thumbnail mx-auto"
+              src={photoUrl} 
+              alt={user.name} 
+              onError = {i => (i.target.src = `${DefaultProfile}`)}
             />
+            <p className="text-lead mt-3 text-center">{user.about}</p>
           </div>
           <div className="col-md-4">
             <div className="lead mt-4">
@@ -60,12 +94,17 @@ class Profile extends Component {
               ).toDateString()}`}
               </p>
             </div>
-            {isAuthenticated().user._id === user._id && (
+            {isAuthenticated().user._id === user._id ? (
               <div className="d-inline-block">
                 <Link className="btn btn-raised btn-primary mr-5"
                   to={`/user/edit/${user._id}`}>Edit Profile</Link>
-                <DeleteUser userId={user._id}/>
+                <DeleteUser userId={user._id} />
               </div>
+            ) : (
+              <FollowProfileButton 
+                following={this.state.following}
+                onButtonClick={this.clickFollowButton}
+              />
             )}
           </div>
         </div>
