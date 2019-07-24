@@ -32,7 +32,7 @@ class Signin extends Component {
     // console.log(user);
     signin(user)
     .then(data => {
-      if(data.error) {this.setState({error : data.error, loading:false})
+      if(data.err) {this.setState({error : data.err, loading:false})
       }
       else {
         // authenticate
