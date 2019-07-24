@@ -5,6 +5,7 @@ import { read } from './apiUser';
 import DefaultProfile from '../image/avatar.png';
 import DeleteUser from './deleteUser';
 import FollowProfileButton from './FollowProfileButton';
+import ProfileTab from './ProfileTab';
 
 class Profile extends Component {
   constructor() {
@@ -12,8 +13,9 @@ class Profile extends Component {
     this.state = {
       user: {following: [], followers: [] },
       redirectToSignin: false,
-      following: false
-    }
+      following: false,
+      error: ""
+    };
   };
 
   // check follow
@@ -23,18 +25,18 @@ class Profile extends Component {
       return follower._id === jwt.user._id
     })
     return match
-  }
+  };
 
   // when follow button click
   clickFollowButton = callApi => {
     const userId = isAuthenticated().user._id;
     const token = isAuthenticated().token;
-    callApi(userId, token, this.state.user._id)
-    .then(data => {
+    const followId = this.state.user._id;
+    callApi(userId, token, followId).then(data => {
       if (data.error) {
-        this.setState({ error: data.error })
+        this.setState({ error: data.error})
       } else {
-        this.setState({ user: data, following: !this.state.following })
+        this.setState({ user: data, following: !this.state.following})
       }
     })
   }
@@ -86,13 +88,15 @@ class Profile extends Component {
             <p className="text-lead mt-3 text-center">{user.about}</p>
           </div>
           <div className="col-md-4">
-            <div className="lead mt-4">
+            <div className="lead">
               <p>Name&nbsp;  :  &nbsp;{user.name}</p>
               <p>Email&nbsp;&nbsp;  :  &nbsp;{user.email}</p>
               <p>Joined : &nbsp;{`${new Date(
                 user.created
               ).toDateString()}`}
               </p>
+            <ProfileTab key={user._id} following={user.following} followers={user.followers} />
+
             </div>
             {isAuthenticated().user._id === user._id ? (
               <div className="d-inline-block">

@@ -12,23 +12,6 @@ export const read = (userId, token) => {
     .catch(error => console.log(error));
 };
 
-// follow
-export const follow = (userId, token, followId) => {
-  return fetch(`${process.env.REACT_APP_API_URL}/user/follow`, {
-      method: "PUT",
-      headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ userId, followId })
-  })
-      .then(response => {
-          return response.json();
-      })
-      .catch(err => console.log(err));
-};
-
 // update
 export const update = (userId, token, userData) => {
   // di fungsi update kita mengirim form data
@@ -51,8 +34,8 @@ export const update = (userId, token, userData) => {
 // sehingga dibuat fungsi ini
 // ini adalah middleware
 export const updateUser = (user, next) => {
-  if(typeof window !== "undefined") {
-    if(localStorage.getItem("jwt")) {
+  if (typeof window !== "undefined") {
+    if (localStorage.getItem("jwt")) {
       let auth = JSON.parse(localStorage.getItem("jwt"));
       auth.user = user;
       localStorage.setItem("jwt", JSON.stringify(auth));
@@ -76,7 +59,6 @@ export const remove = (userId, token) => {
     .catch(error => console.log(error));
 };
 
-
 export const list = () => {
   return fetch(`${process.env.REACT_APP_API_URL}/users`, {
     method: "GET"
@@ -85,3 +67,35 @@ export const list = () => {
   })
     .catch(err => console.log(err));
 }
+
+// follow
+export const follow = (userId, token, followId) => {
+  return fetch(`${process.env.REACT_APP_API_URL}/user/follow`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ userId, followId })
+  }).then(response => {
+      return response.json();
+  }).catch(err => console.log(err));
+}
+// return response.json();
+// }).catch(err => console.log(err));
+
+// unfollow
+export const unfollow = (userId, token, unfollowId) => {
+  return fetch(`${process.env.REACT_APP_API_URL}/user/unfollow`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ userId, unfollowId })
+  }).then(response => {
+      return response.json();
+    }).catch(err => console.log(err));
+};
