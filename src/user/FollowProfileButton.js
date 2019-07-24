@@ -25,3 +25,4 @@ class FollowProfileButton extends Component {
 }
 
 export default FollowProfileButton;
+

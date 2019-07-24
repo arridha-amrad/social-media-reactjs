@@ -29,6 +29,11 @@ const Menu = ({ history }) => (
               style={(isActive(history, "/users"))}
               to="/users">Users</Link>
           </li>
+          <li className="nav-item">
+            <Link className="nav-link"
+              style={(isActive(history, "/findpeople"))}
+              to="/findpeople">Find People</Link>
+          </li>
           <li className="nav-item mr-5">
             <span className="nav-link"
               style={(isActive(history, "/signout"), { cursor: "pointer", color: "#fff" })}

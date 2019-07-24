@@ -18,10 +18,11 @@ class ProfileTab extends Component {
 
   render() {
     const { followers, following } = this.props;
+
     return (
       <div className="mb-4">
         <Button variant="primary" onClick={this.handleShow1}>
-          following: {Object.keys(following).length}
+          following: {following.length}
         </Button>
         <Button variant="primary" onClick={this.handleShow2}>
           followers: {Object.keys(followers).length}

@@ -23,12 +23,12 @@ class Users extends Component {
     <div className="row">
       {users.map((user, i) => (
       <div className="col-md-4 mt-4" key={i}>
-      <div className="card text-center" style={{ width: "18rem" }}>
+      <div className="card text-center" style={{ width: "18rem", background:"#fff", borderRadius:"20px" }}>
       <img style={{
               height: "240px",
               width: "auto"
             }}
-              className="card-img-top img-thumbnail"
+              className="card-img-top mx-auto img-thumbnail"
               src={`${process.env.REACT_APP_API_URL}/user/photo/${user._id}?${new Date().getTime()}`} 
               alt={user.name} 
               onError = {i => (i.target.src = `${DefaultProfile}`)}
