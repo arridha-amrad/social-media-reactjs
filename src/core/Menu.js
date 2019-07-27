@@ -24,6 +24,13 @@ const Menu = ({ history }) => (
                   {isAuthenticated().user.name}
             </Link>  
           </li>
+          <li className="nav-item">
+            <Link className="nav-link" 
+                  style={isActive(history, `/post/create`)} 
+                  to={`/post/create`}>
+                  Create Post
+            </Link>  
+          </li>
           <li className="nav-item ml-auto">
             <Link className="nav-link"
               style={(isActive(history, "/users"))}

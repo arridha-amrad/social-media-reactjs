@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Modal, ListGroup } from 'react-bootstrap';
+import { Modal, ListGroup, Badge } from 'react-bootstrap';
 
 
 class ProfileTab extends Component {
@@ -9,24 +9,47 @@ class ProfileTab extends Component {
     this.state = {
       show1: false,
       show2: false,
+      show3: false
     }
   }
   handleClose1 = () => this.setState({ show1: false });
   handleClose2 = () => this.setState({ show2: false });
+  handleClose3 = () => this.setState({ show3: false });
+
   handleShow1 = () => this.setState({ show1: true });
   handleShow2 = () => this.setState({ show2: true });
+  handleShow3 = () => this.setState({ show3: true });
 
   render() {
-    const { followers, following } = this.props;
+    const { followers, following, posts } = this.props;
 
     return (
       <div className="mb-4">
-        <Button variant="primary" onClick={this.handleShow1}>
+        <Badge pill style={{cursor: "pointer", fontWeight: "200", background: "#E0E0E0" }} className="mr-2" onClick={this.handleShow1}>
           following: {following.length}
-        </Button>
-        <Button variant="primary" onClick={this.handleShow2}>
+        </Badge>
+        <Badge pill style={{cursor: "pointer", fontWeight: "200", background: "#E0E0E0" }} className="mr-2" onClick={this.handleShow2}>
           followers: {Object.keys(followers).length}
-        </Button>
+        </Badge>
+        <Badge pill style={{cursor: "pointer", fontWeight: "200", background: "#E0E0E0" }} onClick={this.handleShow3}>
+          posts: {posts.length}
+        </Badge>
+
+        <Modal show={this.state.show3} onHide={this.handleClose3}>
+          <Modal.Header closeButton>
+            <Modal.Title>Posts</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {posts.map((post, i) => (
+              <ListGroup key={i}>
+                <ListGroup.Item>
+                <img style={{width: "30px", height: "30px", borderRadius:"50%"}} src={`${process.env.REACT_APP_API_URL}/post/photo/${post._id}`} alt={post.title}/>
+                <Link to={`/post/${post._id}`}>{post.title}</Link>
+                </ListGroup.Item>
+              </ListGroup>
+            ))}
+          </Modal.Body>
+        </Modal>
 
         <Modal show={this.state.show1} onHide={this.handleClose1}>
           <Modal.Header closeButton>
