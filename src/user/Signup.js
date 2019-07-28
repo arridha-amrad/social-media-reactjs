@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { signup } from '../auth/index';
+import {Redirect} from 'react-router-dom';
 
 
 class Signup extends Component {
@@ -9,8 +10,10 @@ class Signup extends Component {
       name: "",
       email: "",
       password: "",
+      password2: "",
       error: "",
       message: "",
+      redirectToSignIn: false
     }
   }
 
@@ -20,8 +23,19 @@ class Signup extends Component {
     this.setState({ [whateverType]: e.target.value });
   }
 
+    isValid = () => {
+    const {password, password2} = this.state;
+    if(password!==password2){
+      this.setState({error: "Password not match"});
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   clickSubmit = e => {
     e.preventDefault();
+    if(this.isValid()) {
     const {name, email, password} = this.state;
     const user = {
       name,
@@ -38,13 +52,22 @@ class Signup extends Component {
         email: "",
         password: "",
         error: "",
-        message: data.message
+        redirectToSignIn: true
       })
     })
   };
+}
 
   render() {
-  const {name, email, password, error, message} = this.state;
+  const {name, email, password, error, redirectToSignIn, password2} = this.state;
+
+  if(redirectToSignIn) {
+    return <Redirect to={{
+      pathname:"/signin",
+      state:"Signup complete. Please login"
+    }} />
+  }
+
   return (
     <div className="row mt-5">
       <div className="col-md-4 offset-md-4">
@@ -52,9 +75,6 @@ class Signup extends Component {
           <h2 className="mt-5 mb-5 text-center">Signup</h2>
           {error && (<div className="alert alert-warning text-center">
             <strong>Failed! </strong> {error}
-          </div>)}
-          {message && (<div className="alert alert-success text-center">
-            <strong>Congratulation! </strong> {message}
           </div>)}
           <form>
             <div className="form-group">
@@ -69,12 +89,13 @@ class Signup extends Component {
               <label htmlFor="password" className="text-muted">Password</label>
               <input onChange={this.handleChange("password")} type="password" className="form-control" value={password} />
             </div>
+            <div className="form-group">
+              <label htmlFor="password2" className="text-muted">Confirm Password</label>
+              <input onChange={this.handleChange("password2")} type="password" className="form-control" value={password2} />
+            </div>
+
             <button onClick={this.clickSubmit} className="btn btn-raised btn-primary">Submit</button>
-            {message ? (
-            <small className="text-lead float-right mt-2"><a href="/signin" className="float-right">login</a></small>
-            ) : (
             <small className="text-lead float-right mt-2">Already have account?&nbsp;<a href="/signin" className="float-right">login</a></small>
-            )}
           </form>
         </div>
       </div>

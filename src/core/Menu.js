@@ -44,7 +44,7 @@ const Menu = ({ history }) => (
           <li className="nav-item mr-5">
             <span className="nav-link"
               style={(isActive(history, "/signout"), { cursor: "pointer", color: "#fff" })}
-              onClick={() => signout(() => history.push("/signin"))} >Logout</span>
+              onClick={() => signout(() => history.push("/signin"))}>Logout</span>
           </li>
 
         </Fragment>

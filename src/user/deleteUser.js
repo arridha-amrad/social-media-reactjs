@@ -38,3 +38,4 @@ class deleteUser extends Component {
 }
 
 export default deleteUser
+
