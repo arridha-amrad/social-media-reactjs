@@ -17,6 +17,7 @@ class Signin extends Component {
 
   handleChange = whateverType => e => {
     this.setState({ error: "" });
+    this.props.location.state =  "";
     this.setState({ message: "" });
     this.setState({ [whateverType]: e.target.value });
   }
@@ -44,6 +45,7 @@ class Signin extends Component {
   };
 
   render() {
+  // const redirectMessage = this.props.redirectMessage;
   const {email, password, error, redirectToReferer, loading} = this.state;
   if(redirectToReferer) return <Redirect to="/" />
   return (
@@ -60,6 +62,12 @@ class Signin extends Component {
           {error && (<div className="alert alert-warning text-center">
             <strong>Failed! </strong> {error}
           </div>)}
+
+          {this.props.location.state && (
+            <div className="alert alert-secondary text-center">
+            {this.props.location.state}
+          </div>
+          )}
 
           <form>
             <div className="form-group">

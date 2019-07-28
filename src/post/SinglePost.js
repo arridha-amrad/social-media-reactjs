@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { singlePost, remove } from './apiPost';
+import { singlePost, remove, like, unlike } from './apiPost';
 import DefaultProfile from '../image/avatar.png';
 import { Link, Redirect } from 'react-router-dom'
 import Moment from 'react-moment';
@@ -10,9 +10,10 @@ class SinglePost extends Component {
   state = {
     post: '',
     loading: false,
-    deleted: false,
-    redirectToProfile: false
-
+    redirectToProfile: false,
+    redirectToSignin: false,
+    like: false,
+    likes: 0
   }
 
   componentDidMount = () => {
@@ -21,21 +22,53 @@ class SinglePost extends Component {
       if (data.error) {
         console.log(data.error);
       } else {
-        this.setState({ post:data });
+        this.setState({
+          post: data,
+          likes: data.likes.length,
+          like: this.checkLike(data.likes)
+        });
       }
     })
   }
+
+  checkLike = (likes) => {
+    const userId = isAuthenticated() && isAuthenticated().user._id;
+    let match = likes.indexOf(userId) !== -1;
+    return match;
+  };
+
+  likeToggle = () => {
+    if(!isAuthenticated()) {
+      this.setState({redirectToSignin: true});
+      return false;
+    }
+    let callApi = this.state.like ? unlike : like
+    const userId = isAuthenticated().user._id
+    const token = isAuthenticated().token
+    const postId = this.state.post._id
+
+    callApi(userId, token, postId).then(data => {
+      if (data.error) {
+        console.log(data.error)
+      } else {
+        this.setState({
+          like: !this.state.like,
+          likes: data.likes.length,
+        });
+      }
+    });
+  };
 
   deletePost = () => {
     const postId = this.props.match.params.postId;
     const token = isAuthenticated().token;
     remove(postId, token).then(data => {
-      if(data.error){
+      if (data.error) {
         console.log(data.error)
       } else {
-        this.setState({ 
+        this.setState({
           redirectToProfile: true
-         });
+        });
       }
     });
   };
@@ -47,14 +80,15 @@ class SinglePost extends Component {
     }
   }
 
-  renderPost = () => {
-    const { post } = this.state;
+  renderPost = post => {
+    const { like, likes, redirectToSignin } = this.state;
     const posterId = post.postedBy ? `/user/${post.postedBy._id}` : "";
     const posterName = post.postedBy ? post.postedBy.name : "unknow";
     const postedDate = new Date(post.created);
 
     return (
       <>
+        
         <div className="card mt-5" style={{ boxShadow: "none", background: "transparent" }}>
           <h2 className="text-center">
             {this.state.post.title}
@@ -66,6 +100,13 @@ class SinglePost extends Component {
             className="card-img-top mx-auto img-thumbnail mt-2"
             style={{ width: "100%", height: "450px", border: "none" }}
             alt={post.title} />
+
+          {like ? (
+            <h4 style={{ cursor: "pointer" }} onClick={this.likeToggle}><i className="fas fa-heart" style={{color:"#ff3399"}}></i>&nbsp;{likes} Like</h4>
+          ) : (
+            <h4 style={{ cursor: "pointer" }} onClick={this.likeToggle}><i className="far fa-heart"></i>&nbsp;{likes} Like</h4>
+          )}
+
           <h5>{post.title}</h5>
           <p>{post.body}</p>
           <small> Posted by: <Link to={`${posterId}`}>{posterName}</Link></small>
@@ -74,13 +115,13 @@ class SinglePost extends Component {
               {postedDate}
             </Moment></small>
         </div>
-        <div className="d-inline-block mt-2">
+        <div className="d-inline-block mt-2 mb-5">
           <Link to="/" className="btn btn-secondary btn-raised">Back to Posts</Link>
           {isAuthenticated().user && isAuthenticated().user._id === post.postedBy._id && (
             <>
-              <Link 
-              to={`/post/edit/${this.state.post._id}`}
-              className="btn btn-raised btn-success ml-4 mr-4"
+              <Link
+                to={`/post/edit/${this.state.post._id}`}
+                className="btn btn-raised btn-success ml-4 mr-4"
               >Update Post
               </Link>
               <button
@@ -96,8 +137,14 @@ class SinglePost extends Component {
     )
   }
   render() {
-    if(this.state.redirectToProfile){
+    if (this.state.redirectToProfile) {
       return <Redirect to={`/user/${this.state.post.postedBy._id}`}/>
+    }
+    if(this.state.redirectToSignin) {
+      return <Redirect to={{
+        pathname: '/signin',
+        state: 'Please sign in'
+      }}/>
     }
     return (
       <div className="row">
@@ -107,7 +154,7 @@ class SinglePost extends Component {
               <BigSpinner />
             </div>
           ) : (this.renderPost(this.state.post))
-          }          
+          }
         </div>
       </div>
     )

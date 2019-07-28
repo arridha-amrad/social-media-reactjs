@@ -73,3 +73,37 @@ export const updatePost = (postId, token, post) => {
   })
     .catch(error => console.log(error));
 };
+
+export const like = (userId, token, postId) => {
+  return fetch(`${process.env.REACT_APP_API_URL}/post/like`, {
+    method: "PUT",
+    headers: {
+      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    // body adalah data yang dikirim ke database
+    body: JSON.stringify({userId, postId})
+  })
+  .then(response => {
+    return response.json();
+  })
+  .catch(err => console.log(err));
+};
+
+export const unlike = (userId, token, postId) => {
+  return fetch(`${process.env.REACT_APP_API_URL}/post/unlike`, {
+    method: "PUT",
+    headers: {
+      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    // body adalah data yang dikirim ke database
+    body: JSON.stringify({userId, postId})
+  })
+  .then(response => {
+    return response.json();
+  })
+  .catch(err => console.log(err));
+};
