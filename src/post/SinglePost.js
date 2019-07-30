@@ -5,6 +5,7 @@ import { Link, Redirect } from 'react-router-dom'
 import Moment from 'react-moment';
 import BigSpinner from '../image/BigSpinner';
 import { isAuthenticated } from '../auth';
+import Comment from './Comment';
 
 class SinglePost extends Component {
   state = {
@@ -13,8 +14,15 @@ class SinglePost extends Component {
     redirectToProfile: false,
     redirectToSignin: false,
     like: false,
-    likes: 0
+    likes: 0,
+    comments: []
   }
+
+  checkLike = (likes) => {
+    const userId = isAuthenticated() && isAuthenticated().user._id;
+    let match = likes.indexOf(userId) !== -1;
+    return match;
+  };
 
   componentDidMount = () => {
     const postId = this.props.match.params.postId
@@ -25,17 +33,16 @@ class SinglePost extends Component {
         this.setState({
           post: data,
           likes: data.likes.length,
-          like: this.checkLike(data.likes)
+          like: this.checkLike(data.likes),
+          comments: data.comments
         });
       }
     })
-  }
-
-  checkLike = (likes) => {
-    const userId = isAuthenticated() && isAuthenticated().user._id;
-    let match = likes.indexOf(userId) !== -1;
-    return match;
   };
+
+  updateComments = comments => {
+    this.setState({comments})
+  }
 
   likeToggle = () => {
     if(!isAuthenticated()) {
@@ -81,7 +88,7 @@ class SinglePost extends Component {
   }
 
   renderPost = post => {
-    const { like, likes, redirectToSignin } = this.state;
+    const { like, likes } = this.state;
     const posterId = post.postedBy ? `/user/${post.postedBy._id}` : "";
     const posterName = post.postedBy ? post.postedBy.name : "unknow";
     const postedDate = new Date(post.created);
@@ -137,10 +144,11 @@ class SinglePost extends Component {
     )
   }
   render() {
+    const {post, comments, redirectToSignin} = this.state;
     if (this.state.redirectToProfile) {
-      return <Redirect to={`/user/${this.state.post.postedBy._id}`}/>
+      return <Redirect to={`/user/${post.postedBy._id}`}/>
     }
-    if(this.state.redirectToSignin) {
+    if(redirectToSignin) {
       return <Redirect to={{
         pathname: '/signin',
         state: 'Please sign in'
@@ -149,12 +157,17 @@ class SinglePost extends Component {
     return (
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          {!this.state.post ? (
+          {!post ? (
             <div className="text-center">
               <BigSpinner />
             </div>
-          ) : (this.renderPost(this.state.post))
+          ) : (this.renderPost(post))
           }
+          <Comment 
+          postId={post._id} 
+          comments={comments.reverse()} 
+          updateComments = {this.updateComments}
+          />
         </div>
       </div>
     )
